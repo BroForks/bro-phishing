@@ -21,6 +21,7 @@ export {
 		"application/java-archive",
 		"application/x-java-applet",
 		"application/x-java-jnlp-file",
+		"application/msword",
 		"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -44,16 +45,21 @@ event bro_init()
 						},
 					$threshold_crossed(key: SumStats::Key, result: SumStats::Result) =
 						{
-						local message = fmt("SHA1 %s seen with more than %d recipients", key$str, result["phishing.attachment_recipients"]$sum);
+						local message = fmt("SHA1 %s seen with more than %g recipients", key$str, result["phishing.attachment_recipients"]$sum);
 						local subtext = "Indicates mass mail of document files.";
 						local i = Notice::Info($ts=network_time(),
 											$note=Suspicious_Email_Document,
 											$identifier=key$str,
 											$msg=message,
-											$sub=subtext
-											);
+											$sub=subtext);
 						NOTICE(i);
 						}]);
+	}
+
+event file_sniff(f: fa_file, meta: fa_metadata)
+	{
+	if ( f?$source && f$source == "SMTP" )
+		Files::add_analyzer(f, Files::ANALYZER_SHA1);
 	}
 
 event file_state_remove(f: fa_file)
