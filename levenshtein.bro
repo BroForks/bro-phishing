@@ -35,7 +35,7 @@ function parse_domain(s: string): string
 
 event SMTP::log_smtp(rec: SMTP::Info)
 	{
-	if ( ! hook policy(rec) )
+	if ( ! hook Phishing::policy(rec) )
 		return;
 	local domain = "";
 	local msg: string;
