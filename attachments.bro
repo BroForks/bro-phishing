@@ -30,7 +30,7 @@ export {
 		"application/zip"
 	};
 	## Provides the ability to whitelist emails that should not be monitored for attachments / phishing
-	global Phishing::attachment_policy(f: fa_file);
+	global Phishing::attachment_policy: hook(f: fa_file);
 }
 
 event bro_init()
