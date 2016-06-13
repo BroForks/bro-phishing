@@ -29,6 +29,8 @@ export {
 		"application/x-dosexec",
 		"application/zip"
 	};
+	## Provides the ability to whitelist emails that should not be monitored for attachments / phishing
+	global Phishing::attachment_policy(f: fa_file);
 }
 
 event bro_init()
@@ -68,7 +70,7 @@ event file_state_remove(f: fa_file)
 	if ( ! f?$source || f$source != "SMTP")
 		return;
 
-	if ( f$info?$mime_type && f$info$mime_type in exploit_types )
+	if ( hook Phishing::monitored_attachments(f) && f$info?$mime_type && f$info$mime_type in exploit_types )
 		{
 		SumStats::observe("phishing.attachment_recipients",
 							SumStats::Key($str=f$info$sha1),
