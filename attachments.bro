@@ -70,7 +70,7 @@ event file_state_remove(f: fa_file)
 	if ( ! f?$source || f$source != "SMTP")
 		return;
 
-	if ( hook Phishing::attachment_policy(f) && f$info?$mime_type && f$info$mime_type in exploit_types )
+	if ( f$info?$mime_type && f$info$mime_type in exploit_types && hook Phishing::attachment_policy(f) )
 		{
 		SumStats::observe("phishing.attachment_recipients",
 							SumStats::Key($str=f$info$sha1),
