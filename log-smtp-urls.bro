@@ -15,9 +15,9 @@ export {
 		## Connection UID to tie the log to the conn log
 		uid:	string &log;
 		## SMTP MAILFROM header
-		from:	string &log;
+		from:	string &log &optional;
 		## SMTP RCPTTO header
-		to: 	set[string] &log;
+		to: 	set[string] &log &optional;
 		## The host portion of the URL found
 		host: 	string &log;
 		## The path of the URL found
@@ -25,7 +25,7 @@ export {
 	};
 
 	## Event fired when a link is found in an email
-	global link_found: event(uri: URI);
+	global link_found: event(host: string, path: string);
 }
 
 event bro_init()
@@ -43,18 +43,31 @@ event mime_all_data(c: connection, length: count, data: string)
 	# Loop through each of the links, logging them
 	for ( url in urls )
 		{
-		local uri = decompose_uri(url);
-		event Phishing::link_found(uri);
+
+		# Basic parsing of URL to make the log more useful
+		local uri = split_string1(url, /\//);
+		local host = uri[0];
+		local path = "";
+		if ( |uri| > 1 )
+			{
+			path = "/" + uri[1];
+			}
+
+		# Fire an event for additional use of this information
+		event Phishing::link_found(host, path);
 
 		local i: Info;
 
 		i$ts = c$smtp$ts;
 		i$uid = c$smtp$uid;
-		i$from = c$smtp$mailfrom;
-		i$to = c$smtp$rcptto;
-		i$host = uri$netlocation;
-		i$path = uri$path;
+		if ( c$smtp?$mailfrom )
+			i$from = c$smtp$mailfrom;
+		if ( c$smtp?$rcptto )
+			i$to = c$smtp$rcptto;
+		i$host = host;
+		i$path = path;
 
+		# Log the link to the links log
 		Log::write(Links_LOG, i);
 		}
 	}
