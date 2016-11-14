@@ -39,6 +39,13 @@ hook Phishing::attachment_policy(f: fa_file) &priority=10
 	}
 ```
 
+levenshtein.bro
+-----------------------
+Detection of emails from domains close to domains within **Site::local_zones**.
+
+**max_distance** is the maximum levenshtein distance that will cause an alert in the notice.log.
+
+To monitor a domain, simply add it to the **Site::local_zones**.
 
 Example hook for policy
 -----------------------
