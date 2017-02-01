@@ -3,6 +3,15 @@ Bro Phishing Detection Module
 
 Phishing detection in Bro. 
 
+Installation
+-----------------------
+
+```bash
+cd <prefix>/share/bro/site/
+git clone git://github.com/hosom/bro-phishing.git Phishing
+echo "@load Phishing" >> local.bro
+```
+
 attachments.bro
 -----------------------
 A simple phishing detection for mass phishing campaigns like Dridex. Detects the same email attachment being sent to many recipients. 
